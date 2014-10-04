@@ -1,5 +1,6 @@
-sudo iw dev wlan0 interface add mon0 type monitor
-sudo ifconfig mon0 up
+iface=`grep IFACE config.py | cut -d'=' -f 2 | sed "s/['\" ]//g"`
+sudo iw dev wlan0 interface add $iface type monitor
+sudo ifconfig $iface up
 sudo python ./core.py
-sudo ifconfig mon0 down
-sudo iw dev mon0 del
+sudo ifconfig $iface down
+sudo iw dev $iface del

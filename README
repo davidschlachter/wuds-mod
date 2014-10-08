@@ -7,6 +7,8 @@ WUDS is a proximity detection system that uses Wi-Fi probe requests, signal stre
 ```bash
 # iw is needed to control the wi-fi interface
 sudo apt-get install iw
+# sqlite3 is needed to interact with the database
+sudo apt-get install sqlite3
 # (optional) I use screen as a daemon for WUDS
 sudo apt-get install screen
 screen

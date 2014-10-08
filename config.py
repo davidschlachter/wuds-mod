@@ -35,17 +35,26 @@ LOG_LEVEL = 3
 
 # (BOOL) Enable/Disable alert modules
 ALERT_SMS = True
+ALERT_PUSHOVER = True
 
 #==================
-# ALERT_SMS MODULE
+# ALERT_SMS CONFIG
 #==================
 
 # (STR) SMTP server hostname and port (TLS required) for sending alerts
 SMTP_SERVER = 'smtp.gmail.com:587'
 
 # (STR) Mail server credentials for sending alerts
-USERNAME = ''
-PASSWORD = ''
+SMTP_USERNAME = ''
+SMTP_PASSWORD = ''
 
 # (STR) SMS email address (through cellular service provider) for receiving alerts
-PHONE = ''
+SMS_EMAIL = ''
+
+#=======================
+# ALERT_PUSHOVER CONFIG
+#=======================
+
+# (STR) API and User keys from pushover.net
+PUSHOVER_API_KEY = ''
+PUSHOVER_USER_KEY = ''

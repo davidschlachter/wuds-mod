@@ -31,10 +31,10 @@ def log(log_type, values):
     cur.execute(query, values)
     conn.commit()
 
-def log_messages(level, message):
+def log_message(level, message):
     log(0, (MESSAGE_LEVELS[level], message))
 
-def log_probes(data):
+def log_probe(data):
     log(1, data)
 
 def resolve_oui(mac):
@@ -45,9 +45,9 @@ def resolve_oui(mac):
             #ouis[mac] = jsonobj[0]['company']
             resp = urllib2.urlopen('http://api.macvendors.com/%s' % mac)
             ouis[mac] = resp.read()
-            log_messages(0, 'OUI resolved. [%s => %s]' % (mac, ouis[mac]))
+            log_message(0, 'OUI resolved. [%s => %s]' % (mac, ouis[mac]))
         except Exception as e:
-            log_messages(1, 'OUI resolution failed. [%s => %s]' % (mac, str(e)))
+            log_message(1, 'OUI resolution failed. [%s => %s]' % (mac, str(e)))
             return 'Unknown'
     return ouis[mac]
 
@@ -60,10 +60,10 @@ def call_alerts(**kwargs):
                 func = globals()[var.lower()]
                 try:
                     func(**kwargs)
-                    log_messages(0, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
+                    log_message(0, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
                 except:
                     traceback.print_exc()
-                    log_messages(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))
+                    log_message(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))
 
 def packet_handler(pkt):
     rtlen = struct.unpack('h', pkt[2:4])[0]
@@ -91,16 +91,16 @@ def packet_handler(pkt):
         if rssi > RSSI_THRESHOLD:
             on_premises = True
         # log according to configured level
-        if LOG_LEVEL == 0: log_probes(data)
-        if foreign and LOG_LEVEL == 1: log_probes(data)
-        if on_premises and LOG_LEVEL == 2: log_probes(data)
+        if LOG_LEVEL == 0: log_probe(data)
+        if foreign and LOG_LEVEL == 1: log_probe(data)
+        if on_premises and LOG_LEVEL == 2: log_probe(data)
         if foreign and on_premises:
-            if LOG_LEVEL == 3: log_probes(data)
+            if LOG_LEVEL == 3: log_probe(data)
             # send alerts periodically
             if bssid not in alerts:
                 alerts[bssid] = datetime.now() - timedelta(minutes=5)
             if (datetime.now() - alerts[bssid]).seconds > ALERT_THRESHOLD:
-                if LOG_LEVEL == 4: log_probes(data)
+                if LOG_LEVEL == 4: log_probe(data)
                 alerts[bssid] = datetime.now()
                 call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=oui)
 
@@ -112,7 +112,7 @@ with sqlite3.connect(LOG_FILE) as conn:
         cur.execute('CREATE TABLE IF NOT EXISTS probes (dtg TEXT, mac TEXT, rssi INT, ssid TEXT, oui TEXT)')
         cur.execute('CREATE TABLE IF NOT EXISTS messages (dtg TEXT, lvl TEXT, msg TEXT)')
         conn.commit()
-        log_messages(0, 'WUDS started.')
+        log_message(0, 'WUDS started.')
         # set up the sniffer
         rawSocket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(0x0003))
         rawSocket.bind((IFACE, 0x0003))
@@ -124,4 +124,4 @@ with sqlite3.connect(LOG_FILE) as conn:
                 pkt = rawSocket.recvfrom(2048)[0]
                 packet_handler(pkt)
             except KeyboardInterrupt: break
-        log_messages(0, 'WUDS stopped.')
+        log_message(0, 'WUDS stopped.')

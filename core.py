@@ -40,11 +40,14 @@ def log_probe(data):
 def resolve_oui(mac):
     if mac not in ouis:
         try:
-            #resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac)
-            #jsonobj = json.load(resp)
-            #ouis[mac] = jsonobj[0]['company']
-            resp = urllib2.urlopen('http://api.macvendors.com/%s' % mac)
-            ouis[mac] = resp.read()
+            resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac)
+            if resp.code == 204:
+                ouis[mac] = 'Unknown'
+            elif resp.code == 200:
+                jsonobj = json.load(resp)
+                ouis[mac] = jsonobj[0]['company']
+            else:
+                raise Exception('Invalid response code: %d' % (resp.code))
             log_message(0, 'OUI resolved. [%s => %s]' % (mac, ouis[mac]))
         except Exception as e:
             log_message(1, 'OUI resolution failed. [%s => %s]' % (mac, str(e)))

@@ -74,7 +74,7 @@ def call_alerts(**kwargs):
                 func = globals()[var.lower()]
                 try:
                     func(**kwargs)
-                    log_message(0, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
+                    log_message(2, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
                 except:
                     traceback.print_exc()
                     log_message(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))

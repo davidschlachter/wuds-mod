@@ -5,12 +5,13 @@ WUDS is a proximity detection system that uses Wi-Fi probe requests, signal stre
 ## Setup
 
 ```bash
-# iw is needed to control the wi-fi interface
-sudo apt-get install iw
-# sqlite3 is needed to interact with the database
-sudo apt-get install sqlite3
-# (optional) I use screen as a daemon for WUDS
-sudo apt-get install screen
+# install prerequisites
+# iw      - control the wi-fi interface
+# pycapy  - access full 802.11 frames
+# sqlite3 - interact with the database
+# screen  - (optional) daemonize WUDS
+sudo apt-get install iw python-pcapy sqlite3 screen
+# lauch a screen session
 screen
 # install WUDS
 git clone https://LaNMaSteR53@bitbucket.org/LaNMaSteR53/wuds.git
@@ -24,8 +25,8 @@ vim config.py
 
 ## File Summary
 
-* alerts.py -- custom alert modules
-* config.py -- configuration file
-* core.py -- core library
-* run.sh -- startup script
-* README -- this file
+* alerts.py - custom alert modules
+* config.py - configuration file
+* core.py - core library
+* run.sh - startup script
+* README - this file

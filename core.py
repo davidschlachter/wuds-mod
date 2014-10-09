@@ -1,7 +1,7 @@
 from contextlib import closing
 from datetime import datetime, timedelta
 import json
-import socket
+import pcapy
 import sqlite3
 import struct
 import sys
@@ -24,8 +24,19 @@ MESSAGE_LEVELS = {
     2: 'ALERT',
     }
 
+def to_unicode(obj, encoding='utf-8'):
+    # checks if obj is a unicode string and converts if not
+    if isinstance(obj, basestring):
+        if not isinstance(obj, unicode):
+            obj = unicode(obj, encoding)
+    return obj
+
 def log(log_type, values):
+    # add a timestamp to the values
     values = (str(datetime.now()),) + values
+    # sanitize values for storage
+    values = tuple([to_unicode(x) for x in values])
+    # insert values into the database
     values_str = ','.join('?'*len(values))
     query = 'INSERT INTO %s VALUES (%s)' % (LOG_TYPES[log_type], values_str)
     cur.execute(query, values)
@@ -72,15 +83,17 @@ def packet_handler(pkt):
     rtlen = struct.unpack('h', pkt[2:4])[0]
     ftype = (ord(pkt[rtlen]) >> 2) & 3
     stype = ord(pkt[rtlen]) >> 4
-    # check if probe request frame
+    # check if probe request
     if ftype == 0 and stype == 4:
+        rtap = pkt[:rtlen]
+        frame = pkt[rtlen:]
         # parse bssid
-        bssid = pkt[36:42].encode('hex')
+        bssid = frame[10:16].encode('hex')
         bssid = ':'.join([bssid[x:x+2] for x in xrange(0, len(bssid), 2)])
         # parse rssi
-        rssi = struct.unpack("b",pkt[:rtlen][-4:-3])[0]
+        rssi = struct.unpack("b",rtap[-4:-3])[0]
         # parse essid
-        essid = pkt[52:52+ord(pkt[51])] if ord(pkt[51]) > 0 else '<None>'
+        essid = frame[26:26+ord(frame[25])] if ord(frame[25]) > 0 else '<None>'
         # get oui for bssid
         oui = resolve_oui(bssid)
         # build data tuple
@@ -117,14 +130,18 @@ with sqlite3.connect(LOG_FILE) as conn:
         conn.commit()
         log_message(0, 'WUDS started.')
         # set up the sniffer
-        rawSocket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(0x0003))
-        rawSocket.bind((IFACE, 0x0003))
+        cap = pcapy.open_live(IFACE, 1514, 1, 0)
         alerts = {}
         ouis = {}
         # start the sniffer
         while True:
             try:
-                pkt = rawSocket.recvfrom(2048)[0]
-                packet_handler(pkt)
-            except KeyboardInterrupt: break
+                (header, pkt) = cap.next()
+                if cap.datalink() == 0x7F:
+                    packet_handler(pkt)
+            except KeyboardInterrupt:
+                break
+            except:
+                traceback.print_exc()
+                continue
         log_message(0, 'WUDS stopped.')

@@ -14,6 +14,7 @@ from config import *
 from alerts import *
 
 # define constants
+MAC_LIST = [x.lower() for x in MAC_LIST]
 LOG_TYPES = {
     0: 'messages',
     1: 'probes',
@@ -45,14 +46,16 @@ def log(log_type, values):
 def log_message(level, message):
     log(0, (MESSAGE_LEVELS[level], message))
 
-def log_probe(data):
-    log(1, data)
+def log_probe(bssid, rssi, essid):
+    oui = resolve_oui(bssid)
+    log(1, (bssid, rssi, essid, oui))
 
 def resolve_oui(mac):
     if mac not in ouis:
         try:
             resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac)
             if resp.code == 204:
+                if DEBUG: print 'Radiotap:\n%s\nFrame:\n%s\nPacket:\n%s' % (rtap, frame, pkt)
                 ouis[mac] = 'Unknown'
             elif resp.code == 200:
                 jsonobj = json.load(resp)
@@ -62,6 +65,7 @@ def resolve_oui(mac):
             log_message(0, 'OUI resolved. [%s => %s]' % (mac, ouis[mac]))
         except Exception as e:
             log_message(1, 'OUI resolution failed. [%s => %s]' % (mac, str(e)))
+            # return, but don't store the value
             return 'Unknown'
     return ouis[mac]
 
@@ -76,7 +80,7 @@ def call_alerts(**kwargs):
                     func(**kwargs)
                     log_message(2, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
                 except:
-                    traceback.print_exc()
+                    if DEBUG: print traceback.format_exc()
                     log_message(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))
 
 def packet_handler(pkt):
@@ -94,10 +98,8 @@ def packet_handler(pkt):
         rssi = struct.unpack("b",rtap[-4:-3])[0]
         # parse essid
         essid = frame[26:26+ord(frame[25])] if ord(frame[25]) > 0 else '<None>'
-        # get oui for bssid
-        oui = resolve_oui(bssid)
         # build data tuple
-        data = (bssid, rssi, essid, oui)
+        data = (bssid, rssi, essid)
         # check whitelist for probing mac address
         foreign = False
         if bssid not in MAC_LIST:
@@ -107,18 +109,18 @@ def packet_handler(pkt):
         if rssi > RSSI_THRESHOLD:
             on_premises = True
         # log according to configured level
-        if LOG_LEVEL == 0: log_probe(data)
-        if foreign and LOG_LEVEL == 1: log_probe(data)
-        if on_premises and LOG_LEVEL == 2: log_probe(data)
+        if LOG_LEVEL == 0: log_probe(*data)
+        if foreign and LOG_LEVEL == 1: log_probe(*data)
+        if on_premises and LOG_LEVEL == 2: log_probe(*data)
         if foreign and on_premises:
-            if LOG_LEVEL == 3: log_probe(data)
+            if LOG_LEVEL == 3: log_probe(*data)
             # send alerts periodically
             if bssid not in alerts:
                 alerts[bssid] = datetime.now() - timedelta(minutes=5)
             if (datetime.now() - alerts[bssid]).seconds > ALERT_THRESHOLD:
-                if LOG_LEVEL == 4: log_probe(data)
+                if LOG_LEVEL == 4: log_probe(*data)
                 alerts[bssid] = datetime.now()
-                call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=oui)
+                call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=resolve_oui(bssid))
 
 # connect to the wuds database
 # wuds runs as root and should be able to write anywhere
@@ -142,6 +144,6 @@ with sqlite3.connect(LOG_FILE) as conn:
             except KeyboardInterrupt:
                 break
             except:
-                traceback.print_exc()
+                if DEBUG: print traceback.format_exec()
                 continue
         log_message(0, 'WUDS stopped.')

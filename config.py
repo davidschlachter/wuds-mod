@@ -29,6 +29,9 @@ LOG_FILE = 'log.db'
 # 4 = only probes that generate alerts
 LOG_LEVEL = 3
 
+# (BOOL) Enable/Disable stdout debugging messages
+DEBUG = True
+
 #========
 # ALERTS
 #========

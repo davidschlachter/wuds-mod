@@ -71,7 +71,7 @@ def resolve_oui(mac):
         except Exception as e:
             log_message(1, 'OUI resolution failed. [%s => %s]' % (mac, str(e)))
             # return, but don't store the value
-            return 'Unknown'
+            return 'Error'
     return ouis[mac]
 
 def call_alerts(**kwargs):

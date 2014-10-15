@@ -50,13 +50,18 @@ def log_probe(bssid, rssi, essid):
     oui = resolve_oui(bssid)
     log(1, (bssid, rssi, essid, oui))
 
+def is_admin_oui(mac):
+    return int(mac.split(':')[0], 16) & 2
+
 def resolve_oui(mac):
     if mac not in ouis:
         try:
             resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac)
             if resp.code == 204:
-                if DEBUG: print 'Radiotap:\n%s\nFrame:\n%s\nPacket:\n%s' % (rtap, frame, pkt)
-                ouis[mac] = 'Unknown'
+                if is_admin_oui:
+                    ouis[mac] = ADMIN_OUI
+                else:
+                    ouis[mac] = 'Unknown'
             elif resp.code == 200:
                 jsonobj = json.load(resp)
                 ouis[mac] = jsonobj[0]['company']
@@ -104,6 +109,9 @@ def packet_handler(pkt):
         foreign = False
         if bssid not in MAC_LIST:
             foreign = True
+        # handle local admin mac addresses
+        if is_admin_oui(bssid) and ADMIN_IGNORE:
+            foreign = False
         # check proximity
         on_premises = False
         if rssi > RSSI_THRESHOLD:

@@ -12,6 +12,16 @@ MAC_LIST = [
     'xx:xx:xx:xx:xx:xx',
     ]
 
+# (STR) Vendor name to report for probes from Local Admin MAC addresses
+ADMIN_OUI = 'Admin OUI'
+
+# (BOOL) Automatically white list Local Admin MAC addresses
+# WARNING...
+# iOS MAC randomization uses Local Admin MAC addresses. Ignoring Local
+# Admin MAC addresses will cause false negatives. However, NOT ignoring
+# Local Admin MAC addresses will cause false positives.
+ADMIN_IGNORE = False
+
 # (INT) RSSI threshold for triggering alerts
 RSSI_THRESHOLD = -50
 

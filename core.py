@@ -7,6 +7,7 @@ import struct
 import sys
 import traceback
 import urllib2
+import ssl
 
 # import wuds modules
 sys.dont_write_bytecode = True
@@ -62,7 +63,12 @@ def resolve_oui(mac):
         # retrieve mac vendor from oui lookup api
         else:
             try:
-                resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac)
+                # this creates an ssl context that doesn't validate the ssl cert, so if macvendorlookup.com's
+                # cert expires (as it did May 2016), it still parses the results - des 06-2016
+                sadfacecontext = ssl.create_default_context()
+                sadfacecontext.check_hostname = False
+                sadfacecontext.verify_mode = ssl.CERT_NONE
+                resp = urllib2.urlopen('https://www.macvendorlookup.com/api/v2/%s' % mac,context=sadfacecontext)
                 if resp.code == 204:
                     ouis[mac] = 'Unknown'
                 elif resp.code == 200:

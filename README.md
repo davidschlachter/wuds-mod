@@ -29,4 +29,4 @@ vim config.py
 * config.py - configuration file
 * core.py - core library
 * run.sh - startup script
-* README - this file
+* README.md - this file

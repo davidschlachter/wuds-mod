@@ -131,15 +131,19 @@ def packet_handler(pkt):
         if on_premises and LOG_LEVEL == 2: log_probe(*data)
         if foreign and on_premises:
             if LOG_LEVEL == 3: log_probe(*data)
-            # send alerts periodically
+            # Notify on first appearance, then subsequently according to the ALERT_THRESHOLD
             if bssid not in alerts:
-                alerts[bssid] = datetime.now() - timedelta(minutes=5)
-                # Notify on first appearance, then subsequently according to the ALERT_THRESHOLD
-                call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=resolve_oui(bssid))
-            if (datetime.now() - alerts[bssid]).seconds > ALERT_THRESHOLD:
-                if LOG_LEVEL == 4: log_probe(*data)
                 alerts[bssid] = datetime.now()
                 call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=resolve_oui(bssid))
+            # Check if it's been ALERT_THRESHOLD seconds since the last appearance,
+            # if yes, notify, if not, store the time of the last appearance
+            if (datetime.now() - alerts[bssid]).seconds > ALERT_THRESHOLD:
+                if LOG_LEVEL == 4: log_probe(*data)
+                call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=resolve_oui(bssid))
+                alerts[bssid] = datetime.now()
+            else:
+                if LOG_LEVEL == 4: log_probe(*data)
+                alerts[bssid] = datetime.now()
 
 # connect to the wuds database
 # wuds runs as root and should be able to write anywhere

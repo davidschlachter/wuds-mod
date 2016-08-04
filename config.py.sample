@@ -30,7 +30,7 @@ ADMIN_IGNORE = False
 # (INT) RSSI threshold for triggering alerts
 RSSI_THRESHOLD = -50
 
-# (INT) Number of seconds between alerts for persistent foreign probes
+# (INT) Number of seconds a foreign device must be absent before an alert is issued when it reappears
 ALERT_THRESHOLD = 120
 
 # (STR) Path to the database file

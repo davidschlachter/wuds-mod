@@ -1,4 +1,8 @@
-# WUDS: Wi-Fi User Detection System
+# WUDS: Wi-Fi User Detection System (with improved notifications)
+
+This is a fork of https://bitbucket.org/LaNMaSteR53/wuds, but with better notifications. Notifications are sent the first time that an unrecognized device is seen, and thereafter if a given time has past since it was last seen.
+
+## Original README
 
 WUDS is a proximity detection system that uses Wi-Fi probe requests, signal strength, and a white list of MAC addresses to create a detection barrier and identify the presence of foreign devices within a protected zone. Designed with the Raspberry Pi in mind, WUDS can be installed and configured on any system with Python 2.x and a wireless card capable of Monitor mode. See [http://www.lanmaster53.com/2014/10/wifi-user-detection-system/](http://www.lanmaster53.com/2014/10/wifi-user-detection-system/) for more information.
 

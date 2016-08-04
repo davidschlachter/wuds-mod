@@ -1,3 +1,8 @@
+##############################################################
+#  Copy this file to config.py and customize the parameters  #
+#                                                            #
+##############################################################
+
 
 #=========
 # CONTROL
@@ -40,7 +45,8 @@ LOG_FILE = 'log.db'
 LOG_LEVEL = 3
 
 # (BOOL) Enable/Disable stdout debugging messages
-DEBUG = True
+# Note: if set to True, Control-C will print a stack trace instead of exiting
+DEBUG = False
 
 #========
 # ALERTS

@@ -134,6 +134,8 @@ def packet_handler(pkt):
             # send alerts periodically
             if bssid not in alerts:
                 alerts[bssid] = datetime.now() - timedelta(minutes=5)
+                # Notify on first appearance, then subsequently according to the ALERT_THRESHOLD
+                call_alerts(bssid=bssid, rssi=rssi, essid=essid, oui=resolve_oui(bssid))
             if (datetime.now() - alerts[bssid]).seconds > ALERT_THRESHOLD:
                 if LOG_LEVEL == 4: log_probe(*data)
                 alerts[bssid] = datetime.now()

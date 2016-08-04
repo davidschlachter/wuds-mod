@@ -92,11 +92,10 @@ def call_alerts(**kwargs):
                 func = globals()[var.lower()]
                 try:
                     func(**kwargs)
-                    log_message(2, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
                     try:
-                        log_message(2, 'Friendly name was %s' % (MAC_KNOWN[kwargs['bssid']]))
+                        log_message(2, '%s alert triggered for %s, %s' % (var[6:], MAC_KNOWN[kwargs['bssid']], kwargs['bssid']))
                     except Exception as e:
-                        log_message(2, 'No friendly name found for %s' % (kwargs['bssid']))
+                        log_message(2, '%s alert triggered for unknown device, %s' % (var[6:], kwargs['bssid']))
                 except Exception as e:
                     print traceback.format_exc()
                     log_message(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))

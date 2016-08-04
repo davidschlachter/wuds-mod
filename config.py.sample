@@ -11,8 +11,8 @@
 # (STR) WLAN interface in monitor mode
 IFACE = 'mon0'
 
-# (LIST) List of MAC addresses expected within the premises
-MAC_LIST = [
+# (LIST) List of MAC addresses that will not trigger notifications
+MAC_IGNORE = [
     'xx:xx:xx:xx:xx:xx',
     'xx:xx:xx:xx:xx:xx',
     ]

@@ -15,7 +15,7 @@ from config import *
 from alerts import *
 
 # define constants
-MAC_LIST = [x.lower() for x in MAC_LIST]
+MAC_IGNORE = [x.lower() for x in MAC_IGNORE]
 LOG_TYPES = {
     0: 'messages',
     1: 'probes',
@@ -116,7 +116,7 @@ def packet_handler(pkt):
         data = (bssid, rssi, essid)
         # check whitelist for probing mac address
         foreign = False
-        if bssid not in MAC_LIST:
+        if bssid not in MAC_IGNORE:
             foreign = True
         # handle local admin mac addresses
         if is_admin_oui(bssid) and ADMIN_IGNORE:

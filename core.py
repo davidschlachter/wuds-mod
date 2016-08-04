@@ -93,8 +93,12 @@ def call_alerts(**kwargs):
                 try:
                     func(**kwargs)
                     log_message(2, '%s alert triggered. [%s]' % (var[6:], kwargs['bssid']))
+                    try:
+                        log_message(2, 'Friendly name was %s' % (MAC_KNOWN[kwargs['bssid']]))
+                    except Exception as e:
+                        log_message(2, 'No friendly name found for %s' % (kwargs['bssid']))
                 except Exception as e:
-                    if DEBUG: print traceback.format_exc()
+                    print traceback.format_exc()
                     log_message(1, '%s alert failed. [%s]' % (var[6:], kwargs['bssid']))
 
 def packet_handler(pkt):
@@ -115,21 +119,21 @@ def packet_handler(pkt):
         # build data tuple
         data = (bssid, rssi, essid)
         # check whitelist for probing mac address
-        foreign = False
+        no_ignore = False
         if bssid not in MAC_IGNORE:
-            foreign = True
+            no_ignore = True
         # handle local admin mac addresses
         if is_admin_oui(bssid) and ADMIN_IGNORE:
-            foreign = False
+            no_ignore = False
         # check proximity
         on_premises = False
         if rssi > RSSI_THRESHOLD:
             on_premises = True
         # log according to configured level
         if LOG_LEVEL == 0: log_probe(*data)
-        if foreign and LOG_LEVEL == 1: log_probe(*data)
+        if no_ignore and LOG_LEVEL == 1: log_probe(*data)
         if on_premises and LOG_LEVEL == 2: log_probe(*data)
-        if foreign and on_premises:
+        if no_ignore and on_premises:
             if LOG_LEVEL == 3: log_probe(*data)
             # Notify on first appearance, then subsequently according to the ALERT_THRESHOLD
             if bssid not in alerts:

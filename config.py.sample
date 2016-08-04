@@ -17,6 +17,12 @@ MAC_IGNORE = [
     'xx:xx:xx:xx:xx:xx',
     ]
 
+# (DICT) Dictionary of MAC addresses and friendly names that will trigger notifications
+MAC_KNOWN = {
+    'xx:xx:xx:xx:xx:xx': 'friendly name',
+    'xx:xx:xx:xx:xx:xx': 'friendly name',
+    }
+
 # (STR) Vendor name to report for probes from Local Admin MAC addresses
 ADMIN_OUI = 'Admin OUI'
 

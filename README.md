@@ -1,6 +1,6 @@
 # WUDS: Wi-Fi User Detection System (with improved notifications)
 
-This is a fork of https://bitbucket.org/LaNMaSteR53/wuds, but with better notifications. Notifications are sent the first time that an unrecognized device is seen, and thereafter if a given time has passed since it was last seen.
+This is a fork of https://bitbucket.org/LaNMaSteR53/wuds, but with better notifications. Notifications are sent the first time that an unrecognized device is seen, and thereafter if a given time has passed since it was last seen. Additionally, known devices can be given friendly names, and still trigger notifications.
 
 ## Original README
 

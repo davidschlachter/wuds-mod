@@ -11,7 +11,10 @@ from email.mime.text import MIMEText
 import smtplib
 
 def alert_sms(**kwargs):
-    msg = MIMEText('WUDS proximity alert! A foreign device (%s - %s) has been detected on the premises.' % (kwargs['bssid'], kwargs['oui']))
+    try:
+        msg = MIMEText('Device %s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui']))
+    except:
+        msg = MIMEText('Unknown device (%s - %s) detected.' % (kwargs['bssid'], kwargs['oui']))
     server = smtplib.SMTP(SMTP_SERVER)
     server.starttls()
     server.login(SMTP_USERNAME, SMTP_PASSWORD)
@@ -22,7 +25,10 @@ import urllib
 import urllib2
 
 def alert_pushover(**kwargs):
-    msg = 'Proximity alert! A foreign device (%s - %s) has been detected on the premises.' % (kwargs['bssid'], kwargs['oui'])
+    try:
+        msg = 'Device %s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui'])
+    except:
+        msg = 'Unknown device (%s - %s) detected.' % (kwargs['bssid'], kwargs['oui'])
     url = 'https://api.pushover.net/1/messages.json'
     payload = {'token': PUSHOVER_API_KEY, 'user': PUSHOVER_USER_KEY, 'message': msg}
     payload = urllib.urlencode(payload)

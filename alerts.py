@@ -12,7 +12,7 @@ import smtplib
 
 def alert_sms(**kwargs):
     try:
-        msg = MIMEText('Device %s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui']))
+        msg = MIMEText('%s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui']))
     except:
         msg = MIMEText('Unknown device (%s - %s) detected.' % (kwargs['bssid'], kwargs['oui']))
     server = smtplib.SMTP(SMTP_SERVER)
@@ -26,7 +26,7 @@ import urllib2
 
 def alert_pushover(**kwargs):
     try:
-        msg = 'Device %s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui'])
+        msg = '%s (%s - %s) detected.' % (MAC_KNOWN[kwargs['bssid']], kwargs['bssid'], kwargs['oui'])
     except:
         msg = 'Unknown device (%s - %s) detected.' % (kwargs['bssid'], kwargs['oui'])
     url = 'https://api.pushover.net/1/messages.json'
